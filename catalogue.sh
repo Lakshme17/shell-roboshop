@@ -88,5 +88,3 @@ VALIDATE $? "Load catalogue products"
 
 systemctl restart catalogue 
 VALIDATE $? "Restarted Catalogue"
-
-
