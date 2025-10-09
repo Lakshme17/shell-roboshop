@@ -86,12 +86,24 @@ VALIDATE $? "installing MongoDB Client"
 
 
 INDEX=$(mongosh mongodb.daws86s.fun --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
-if [ $INDEX -le 0 ]; then
+INDEX=${INDEX:-"-1"}  # fallback if empty
+
+if [ "$INDEX" -le 0 ]; then
     mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
     VALIDATE $? "Load catalogue products"
 else
     echo -e "Catalogue products already loaded ... $Y SKIPPING $N"
-fi 
+fi
+
+
+
+# INDEX=$(mongosh mongodb.daws86s.fun --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
+# if [ $INDEX -le 0 ]; then
+#     mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
+#     VALIDATE $? "Load catalogue products"
+# else
+#     echo -e "Catalogue products already loaded ... $Y SKIPPING $N"
+# fi 
 
 # mongosh --host $MONGODB_HOST </app/db/master-data.js
 # VALIDATE $? "Load catalogue products"
