@@ -15,8 +15,8 @@ fi
 
 # Setup logging
 LOGS_FOLDER="/var/log/shell-roboshop"
-SCRIPT_NAME="$(basename "$0")"
-SCRIPT_NAME="${SCRIPT_NAME%%.*}"
+SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+SCRIPT_DIR=$PWD
 MONGODB_HOST=mongodb.lakshme.website
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
@@ -63,7 +63,7 @@ VALIDATE $? "Install dependencies "
 
 
 
-cp catalogue.service  /etc/systemd/system/catalogue.service
+cp $SCRIPT_DIR/catalogue.service  /etc/systemd/system/catalogue.service
 VALIDATE $? "Copy systemctl service"
 
 systemctl daemon-reload
@@ -76,7 +76,7 @@ VALIDATE $? "Copy mongo repo"
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "installing MongoDB"
 
-mongosh --host mongodb.lakshme.website </app/db/master-data.js &>>$LOG_FILE
+mongosh --host $MONGODB_HOST </app/db/master-data.js
 VALIDATE $? "Load catalogue products"
 
 systemctl restart catalogue 
