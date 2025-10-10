@@ -53,7 +53,7 @@ unzip /tmp/frontend.zip &>>$LOG_FILE
 VALIDATE $? "Downloading frontend"
 
 rm -rf /etc/nginx/nginx.conf
-cp $SCRIPT_NAME/nginx.conf /etc/nginx/nginx.conf
+cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf
 
 systemctl restart nginx  &>>$LOG_FILE
 VALIDATE $? "Restarting Nginx service"
