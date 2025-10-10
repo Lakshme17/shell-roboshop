@@ -66,16 +66,16 @@ mv target/shipping-1.0.jar shipping.jar
 cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
 
 systemctl daemon-reload &>>$LOG_FILE
-VALIDATE "Load the Service" 
+VALIDATE $? "Load the Service" 
 
 systemctl enable shipping
-VALIDATE "Enabling the Shipping Service" 
+VALIDATE $? "Enabling the Shipping Service" 
 
 # systemctl start shipping &>>$LOG_FILE
 # VALIDATE "starting the Shipping Service" 
 
 dnf install mysql -y &>>$LOG_FILE
-VALIDATE "Install MySQL client" 
+VALIDATE $? "Install MySQL client" 
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
 if [ $? -ne 0 ]; then
@@ -87,5 +87,5 @@ else
 fi
 
 systemctl restart shipping &>>$LOG_FILE
-VALIDATE "Restarting the Shipping Service"
+VALIDATE $? "Restarting the Shipping Service"
 
