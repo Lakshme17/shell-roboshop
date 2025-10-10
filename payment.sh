@@ -34,7 +34,8 @@ VALIDATE() {
     fi        
 }
 
-dnf install maven -y &>>$LOG_FILE
+dnf install python3 gcc python3-devel -y &>>$LOG_FILE
+VALIDATE $? "Installing python"
 
 
 id roboshop &>>$LOG_FILE
@@ -48,8 +49,8 @@ fi
 mkdir -p /app
 VALIDATE $? "Creating app directory"
 
-curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$LOG_FILE
-VALIDATE $? "Downloading shipping application"
+curl -o /tmp/payment.zip https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip &>>$LOG_FILE
+VALIDATE $? "Downloading payment application"
 
 cd  /app
 VALIDATE $? "Changing the app directory"
@@ -57,35 +58,20 @@ VALIDATE $? "Changing the app directory"
 rm -rf /app/*
 VALIDATE $? "Removing existing code"
 
-unzip /tmp/shipping.zip &>>$LOG_FILE
-VALIDATE $? "unzip shipping"
+unzip /tmp/payment.zip &>>$LOG_FILE
+VALIDATE $? "unzip payment"
+ 
+pip3 install -r requirements.txt &>>$LOG_FILE
+VALIDATE $? "Download the dependencies "
 
-mvn clean package 
-mv target/shipping-1.0.jar shipping.jar 
-
-cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
+cp $SCRIPT_DIR/payment.service /etc/systemd/system/payment.service
 
 systemctl daemon-reload &>>$LOG_FILE
 VALIDATE "Load the Service" 
 
-systemctl enable shipping
-VALIDATE "Enabling the Shipping Service" 
+systemctl enable payment &>>$LOG_FILE
+VALIDATE "Enabling the payment  Service" 
 
-# systemctl start shipping &>>$LOG_FILE
-# VALIDATE "starting the Shipping Service" 
-
-dnf install mysql -y &>>$LOG_FILE
-VALIDATE "Install MySQL client" 
-
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use mysql'
-if [ $? -ne 0 ]; then
-    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/schema.sql
-    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/app-user.sql 
-    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/master-data.sql
-else 
-    echo -e "Shipping data is already loaded... $Y SKIPPING $N"
-fi
-
-systemctl restart shipping &>>$LOG_FILE
-VALIDATE "Restarting the Shipping Service"
+systemctl start payment  &>>$LOG_FILE
+VALIDATE "starting the payment  Service" 
 
