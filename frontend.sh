@@ -42,7 +42,7 @@ VALIDATE $? "Installing Nginx"
 systemctl enable nginx 
 VALIDATE $? "Enabling Nginx service"
 
-systemctl start nginx &>>$LOG_FILE
+systemctl restart nginx &>>$LOG_FILE
 VALIDATE $? "Starting Nginx service"
 
 rm -rf /usr/share/nginx/html/* 
