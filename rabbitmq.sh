@@ -72,14 +72,15 @@ VALIDATE $? "Starting RabbitMQ-server"
 
 # rabbitmqctl add_user roboshop roboshop123
 
-id roboshop &>>$LOG_FILE
-if [ $? -ne 0 ]; then
-     rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
-     VALIDATE $? "Creating system user"
-else
-     echo -e "User already exits ....$Y SKIPPING $N"
-fi  
+# id roboshop &>>$LOG_FILE
+# if [ $? -ne 0 ]; then
+#      rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
+#      VALIDATE $? "Creating system user"
+# else
+#      echo -e "User already exits ....$Y SKIPPING $N"
+# fi  
 
+rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
 rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
 VALIDATE $? "Setting up permissions"
 
