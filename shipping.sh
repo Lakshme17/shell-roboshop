@@ -77,7 +77,7 @@ VALIDATE "Enabling the Shipping Service"
 dnf install mysql -y &>>$LOG_FILE
 VALIDATE "Install MySQL client" 
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use mysql'
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
 if [ $? -ne 0 ]; then
     mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
     mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql 
