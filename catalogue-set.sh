@@ -102,7 +102,7 @@ fi
 # mongosh --host $MONGODB_HOST </app/db/master-data.js
 # VALIDATE $? "Load catalogue products"
 
-systemctl restart catalogue
+systemctl restarttttt catalogue
 echo -e "Loading products and restarting catalogue.....$G SUCCESS $N"
 # VALIDATE $? "Restarted catalogue"
 
