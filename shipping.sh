@@ -18,6 +18,7 @@ LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
 SCRIPT_DIR=$PWD
 MONGODB_HOST=mongodb.lakshme.website
+MYSQL_HOST=mysql.lakshme.website
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
 mkdir -p "$LOGS_FOLDER"
@@ -33,15 +34,8 @@ VALIDATE() {
     fi        
 }
 
-#####Installing Catalogue ######NodeJS
-dnf module disable nodejs -y &>>$LOG_FILE
-VALIDATE $? "Disabling the NodeJS"
+dnf install maven -y
 
-dnf module enable nodejs:20 -y &>>$LOG_FILE
-VALIDATE $? "Enabling NodeJS 20"
-
-dnf install nodejs -y &>>$LOG_FILE
-VALIDATE $? "Installing NodeJS"
 
 id roboshop &>>$LOG_FILE
 if [ $? -ne 0 ]; then
@@ -54,8 +48,8 @@ fi
 mkdir -p /app
 VALIDATE $? "Creating app directory"
 
-curl -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>>$LOG_FILE
-VALIDATE $? "Downloading cart application"
+curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>$LOG_FILE
+VALIDATE $? "Downloading catalshippingogue application"
 
 cd  /app
 VALIDATE $? "Changing the app directory"
@@ -63,23 +57,35 @@ VALIDATE $? "Changing the app directory"
 rm -rf /app/*
 VALIDATE $? "Removing existing code"
 
-unzip /tmp/cart.zip &>>$LOG_FILE
-VALIDATE $? "unzip cart"
+unzip /tmp/shipping.zip &>>$LOG_FILE
+VALIDATE $? "unzip shipping"
 
-npm install &>>$LOG_FILE
-VALIDATE $? "Install dependencies "
+mvn clean package 
+mv target/shipping-1.0.jar shipping.jar 
 
-
-
-cp $SCRIPT_DIR/cart.service  /etc/systemd/system/cart.service
-VALIDATE $? "Copy systemctl service"
+cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
 
 systemctl daemon-reload
-systemctl enable cart &>>$LOG_FILE
-VALIDATE $? "Enable cart"
+VALIDATE "Load the Service" 
 
+systemctl enable shipping
+VALIDATE "Enabling the Shipping Service" 
 
-systemctl restart cart
-VALIDATE $? "Restarted cart"
+systemctl start shipping
+VALIDATE "starting the Shipping Service" 
 
+dnf install mysql -y
+VALIDATE "Install MySQL client" 
+
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use mysql'
+if [ $? -ne 0 ]; then
+    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/schema.sql
+    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/app-user.sql 
+    mysql -h <MYSQL-SERVER-IPADDRESS> -uroot -pRoboShop@1 < /app/db/master-data.sql
+else 
+    echo -e "Shipping data is already loaded... $Y SKIPPING $N"
+fi
+
+systemctl restart shipping
+VALIDATE "Restarting the Shipping Service"
 
