@@ -35,13 +35,9 @@ VALIDATE() {
 }
 
 dnf module disable nginx -y &>>$LOG_FILE
-VALIDATE $? "Disabling default Nginx service"
-
 dnf module enable nginx:1.24 -y &>>$LOG_FILE
-VALIDATE $? "Enabling Nginx service"
-
 dnf install nginx -y &>>$LOG_FILE
-VALIDATE $? "Creating app directory"
+VALIDATE $? "Installing Nginx"
 
 systemctl enable nginx 
 VALIDATE $? "Enabling Nginx service"
@@ -50,13 +46,13 @@ systemctl start nginx &>>$LOG_FILE
 VALIDATE $? "Starting Nginx service"
 
 rm -rf /usr/share/nginx/html/* 
-
-
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$LOG_FILE
 
 cd /usr/share/nginx/html 
-unzip /tmp/frontend.zip
+unzip /tmp/frontend.zip &>>$LOG_FILE
+VALIDATE $? "Downloading frontend"
 
+rm -rf /etc/nginx/nginx.conf
 cp $SCRIPT_NAME/nginx.conf /etc/nginx/nginx.conf
 
 systemctl restart nginx  &>>$LOG_FILE
