@@ -55,6 +55,7 @@ VALIDATE(){ # functions receive inputs through args just like shell script args
 # $2: Message describing the step.
 # Logs success/failure with color and exits on failure.
 
+
 cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo
 VALIDATE $? "Adding RabbitMQ repo"
 
@@ -69,7 +70,16 @@ VALIDATE $? "Enabling RabbitMQ-server"
 systemctl start rabbitmq-server &>>$LOG_FILE
 VALIDATE $? "Starting RabbitMQ-server"
 
-rabbitmqctl add_user roboshop roboshop123
+# rabbitmqctl add_user roboshop roboshop123
+
+id roboshop &>>$LOG_FILE
+if [ $? -ne 0 ]; then
+     rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
+     VALIDATE $? "Creating system user"
+else
+     echo -e "User already exits ....$Y SKIPPING $N"
+fi  
+
 rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
 VALIDATE $? "Setting up permissions"
 
